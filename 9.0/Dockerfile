@@ -21,6 +21,13 @@ RUN set -x; \
         && apt-get -y install -f --no-install-recommends \
         && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
+# support for Postgresql9.5
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main 9.5" > /etc/apt/sources.list.d/postgresql.list \
+        && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+        && apt-get update \
+        && apt-get upgrade -y postgresql-common \
+        && apt-get upgrade -y postgresql-client
+
 RUN pip install psycogreen
 
 RUN npm install -g less \

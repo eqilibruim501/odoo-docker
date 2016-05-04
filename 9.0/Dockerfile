@@ -1,6 +1,10 @@
 FROM python:2.7.11
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
+# add user with the same user id as in core odoo package
+# unfortunately python comes with group 107 already defined so I used www-data as group
+RUN useradd -m -d /var/lib/odoo -s /bin/false -u 104 -g 33 odoo
+
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN set -x; \
         apt-get update \
@@ -61,8 +65,6 @@ RUN set -x; \
 RUN curl -o /usr/local/bin/openerp-gevent -SL https://raw.githubusercontent.com/odoo/odoo/9.0/openerp-gevent \
         && chmod a+x /usr/local/bin/openerp-gevent
 
-# add odoo user
-RUN useradd -m -d /var/lib/odoo -s /bin/false odoo
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /

@@ -37,17 +37,6 @@ RUN npm install -g less \
 # python python-minimal python2.7 python2.7-minimal
 RUN apt-get purge -y python.*
 
-# install additional python modules
-RUN pip install --upgrade \
-        inotify \
-        watchdog \
-        psycogreen \
-        psycopg2 \
-        gevent \
-        support \
-        pyinotify \
-        support
-
 # Install Odoo
 ENV ODOO_VERSION 9.0
 ENV ODOO_RELEASE 20160609
@@ -56,9 +45,23 @@ RUN set -x; \
         && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}c.${ODOO_RELEASE}.tar.gz \
         && tar xzf odoo.tar.gz \
         && cd odoo-${ODOO_VERSION}c-${ODOO_RELEASE} \
-        && python setup.py install \
+        && pip install . \
         && cd .. && rm -rf ./odoo* \
-        && apt-get purge -y gcc libsasl2-dev libldap2-dev libssl-dev
+        && pip install --upgrade \
+            cryptography \
+            inotify \
+            watchdog \
+            psycogreen \
+            psycopg2 \
+            gevent \
+            pyinotify \
+            newrelic \
+            flanker \
+        && apt-get purge -y \
+            gcc \
+            libsasl2-dev \
+            libldap2-dev \
+            libssl-dev
 
 
 # missing from above package (workers>0)

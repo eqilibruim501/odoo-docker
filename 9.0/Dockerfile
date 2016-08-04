@@ -1,4 +1,4 @@
-FROM python:2.7.11
+FROM python:2.7.12
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
 # add user with the same user id as in core odoo package
@@ -39,7 +39,7 @@ RUN apt-get purge -y python.*
 
 # Install Odoo
 ENV ODOO_VERSION 9.0
-ENV ODOO_RELEASE 20160609
+ENV ODOO_RELEASE 20160726
 RUN set -x; \
         apt-get install -y libsasl2-dev libldap2-dev libssl-dev gcc \
         && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}c.${ODOO_RELEASE}.tar.gz \
@@ -65,7 +65,7 @@ RUN set -x; \
 
 
 # missing from above package (workers>0)
-RUN curl -o /usr/local/bin/openerp-gevent -SL https://raw.githubusercontent.com/odoo/odoo/9.0/openerp-gevent \
+RUN curl -o /usr/local/bin/openerp-gevent -SL https://raw.githubusercontent.com/odoo/odoo/${ODOO_RELEASE}/openerp-gevent \
         && chmod a+x /usr/local/bin/openerp-gevent
 
 

@@ -1,5 +1,9 @@
-FROM python:2.7.11
+FROM python:2.7.12
 MAINTAINER Hibou Corp. <hello@hibou.io>
+
+# add user with the same user id as in core odoo package
+# unfortunately python comes with group 107 already defined so I used www-data as group
+RUN useradd -m -d /var/lib/odoo -s /bin/false -u 104 -g 33 odoo
 
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN set -x; \
@@ -7,39 +11,63 @@ RUN set -x; \
         && apt-get install -y --no-install-recommends \
             ca-certificates \
             curl \
-            nano \
-            htop \
-            python-pyinotify \
-            python-renderpm \
-            python-support \
-            python-watchdog \
-            nodejs \
-            npm \
         && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
         && echo '40e8b906de658a2221b15e4e8cd82565a47d7ee8 wkhtmltox.deb' | sha1sum -c - \
         && dpkg --force-depends -i wkhtmltox.deb \
         && apt-get -y install -f --no-install-recommends \
+        && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
         && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
-RUN pip install psycogreen
+# support for Postgresql9.5
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main 9.5" > /etc/apt/sources.list.d/postgresql.list \
+        && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
+        && apt-get update \
+        && apt-get upgrade -y postgresql-common \
+        && apt-get upgrade -y postgresql-client
+
+# install newer node and lessc (mostly for less compatibility)
+RUN set -x; \
+        apt-get install -y nodejs npm
 
 RUN npm install -g less \
     && npm install -g less-plugin-clean-css \
     && ln -s `which nodejs` /bin/node \
     && ln -s `which lessc` /bin/lessc
 
+# python python-minimal python2.7 python2.7-minimal
+RUN apt-get purge -y python.*
+
 # Install Odoo
 ENV ODOO_VERSION 8.0
-ENV ODOO_RELEASE 20160609
+ENV ODOO_RELEASE 20160726
 RUN set -x; \
-        curl -o odoo.deb -SL http://nightly.odoo.com/${ODOO_VERSION}/nightly/deb/odoo_${ODOO_VERSION}.${ODOO_RELEASE}_all.deb \
-        && echo 'd112d8f2c2f89fe9996d4142a22d58fc8fe79d63 odoo.deb' | sha1sum -c - \
-        && dpkg --force-depends -i odoo.deb \
-        && apt-get update \
-        && apt-get -y install -f --no-install-recommends \
-        && rm -rf /var/lib/apt/lists/* odoo.deb
+        apt-get install -y libsasl2-dev libldap2-dev libssl-dev gcc \
+        && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}.${ODOO_RELEASE}.tar.gz \
+        && tar xzf odoo.tar.gz \
+        && cd odoo-${ODOO_VERSION}-${ODOO_RELEASE} \
+        && pip install . \
+        && cd .. && rm -rf ./odoo* \
+        && pip install --upgrade \
+            cryptography \
+            inotify \
+            watchdog \
+            psycogreen \
+            psycopg2 \
+            gevent \
+            pyinotify \
+            newrelic \
+            flanker \
+        && apt-get purge -y \
+            gcc \
+            libsasl2-dev \
+            libldap2-dev \
+            libssl-dev
 
-RUN apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm
+
+# missing from above package (workers>0)
+RUN curl -o /usr/local/bin/openerp-gevent -SL https://raw.githubusercontent.com/odoo/odoo/${ODOO_VERSION}/openerp-gevent \
+        && chmod a+x /usr/local/bin/openerp-gevent
+
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /

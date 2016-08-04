@@ -65,7 +65,7 @@ RUN set -x; \
 
 
 # missing from above package (workers>0)
-RUN curl -o /usr/local/bin/openerp-gevent -SL https://raw.githubusercontent.com/odoo/odoo/${ODOO_RELEASE}/openerp-gevent \
+RUN curl -o /usr/local/bin/openerp-gevent -SL https://raw.githubusercontent.com/odoo/odoo/${ODOO_VERSION}/openerp-gevent \
         && chmod a+x /usr/local/bin/openerp-gevent
 
 

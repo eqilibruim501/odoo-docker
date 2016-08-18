@@ -15,3 +15,13 @@ Goals
 * Provide optional Python packages to enable missing Odoo features (flanker email validation, workers>0 support)
 * Provide newer Postgres bindings to support backing up on Postgres > 9.4
 * Provide a better developer and benchmarking suite (newrelic and watchdog)sourcetree
+
+PYPY
+====
+
+This branch includes patches to the 9.0 Dockerfile to get it working in pypy.
+
+Notably:
+* psycopg2 => psycopg2cffi via a symlink
+* service/server.py needs a single line change to cast a qyantity to int()
+* tools/safe_eval.py needs a small block inserted to support some used pypy OpCodes

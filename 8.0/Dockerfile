@@ -1,4 +1,4 @@
-FROM python:2.7.12
+FROM pypy:2
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
 # add user with the same user id as in core odoo package
@@ -52,7 +52,7 @@ RUN set -x; \
             inotify \
             watchdog \
             psycogreen \
-            psycopg2 \
+            psycopg2cffi \
             gevent \
             pyinotify \
             newrelic \

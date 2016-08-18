@@ -1,4 +1,4 @@
-FROM python:2.7.12
+FROM pypy:2
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
 # add user with the same user id as in core odoo package
@@ -45,6 +45,8 @@ RUN set -x; \
         && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}c.${ODOO_RELEASE}.tar.gz \
         && tar xzf odoo.tar.gz \
         && cd odoo-${ODOO_VERSION}c-${ODOO_RELEASE} \
+        # psycopg2 is replaced by psycopg2cffi
+        && sed -i "s/'psycopg2/#'psycopg2/g" ./setup.py \
         && pip install . \
         && cd .. && rm -rf ./odoo* \
         && pip install --upgrade \
@@ -52,7 +54,7 @@ RUN set -x; \
             inotify \
             watchdog \
             psycogreen \
-            psycopg2 \
+            psycopg2cffi \
             gevent \
             pyinotify \
             newrelic \
@@ -63,6 +65,16 @@ RUN set -x; \
             libldap2-dev \
             libssl-dev
 
+# patches
+RUN ln -s /usr/local/site-packages/psycopg2cffi /usr/local/site-packages/psycopg2 \
+    && cd /usr/local/site-packages/openerp \
+    && sed -i "s/cpu_time + config\['limit_time_cpu']/int\(cpu_time \+ config\['limit_time_cpu'])/g" ./service/server.py \
+    && echo 'service/server.py check:::::::::::' \
+    && cat ./service/server.py | grep 'cpu_time + config' \
+    && echo 'tools/safe_eval.py check::::::::::' \
+    && sed -i "s/_logger = logging.getLogger/if 'LOOKUP_METHOD' in opmap:\n    _SAFE_OPCODES.add\(opmap\['LOOKUP_METHOD'])\n    _SAFE_OPCODES.add\(opmap\['CALL_METHOD'])\n\n_logger = logging.getLogger/g" \
+    ./tools/safe_eval.py \
+    && cat ./tools/safe_eval.py | grep -B5 '_logger ='
 
 # missing from above package (workers>0)
 RUN curl -o /usr/local/bin/openerp-gevent -SL https://raw.githubusercontent.com/odoo/odoo/${ODOO_VERSION}/openerp-gevent \

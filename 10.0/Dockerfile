@@ -38,8 +38,8 @@ RUN npm install -g less \
 RUN apt-get purge -y python.*
 
 # Install Odoo
-ENV ODOO_VERSION 8.0
-ENV ODOO_RELEASE 20160726
+ENV ODOO_VERSION 10.0
+ENV ODOO_RELEASE 20161011
 RUN set -x; \
         apt-get install -y libsasl2-dev libldap2-dev libssl-dev gcc \
         && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}.${ODOO_RELEASE}.tar.gz \
@@ -64,15 +64,10 @@ RUN set -x; \
             libssl-dev
 
 
-# missing from above package (workers>0)
-RUN curl -o /usr/local/bin/openerp-gevent -SL https://raw.githubusercontent.com/odoo/odoo/${ODOO_VERSION}/openerp-gevent \
-        && chmod a+x /usr/local/bin/openerp-gevent
-
-
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /
-COPY ./openerp-server.conf /etc/odoo/
-RUN chown odoo /etc/odoo/openerp-server.conf
+COPY ./odoo.conf /etc/odoo/
+RUN chown odoo /etc/odoo/odoo.conf
 
 # Mount /var/lib/odoo to allow restoring filestore and /mnt/extra-addons for users addons
 RUN mkdir -p /mnt/extra-addons \
@@ -82,11 +77,11 @@ VOLUME ["/var/lib/odoo", "/mnt/extra-addons"]
 # Expose Odoo services
 EXPOSE 8069 8071
 
-# Set the default config file
-ENV OPENERP_SERVER /etc/odoo/openerp-server.conf
+# Set the default config file - NOTE this is still used in odoo/tools/config.py in v10
+ENV OPENERP_SERVER /etc/odoo/odoo.conf
 
 # Set default user when running the container
 USER odoo
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["openerp-server"]
+CMD ["odoo"]

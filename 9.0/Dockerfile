@@ -39,12 +39,12 @@ RUN apt-get purge -y python.*
 
 # Install Odoo
 ENV ODOO_VERSION 9.0
-ENV ODOO_RELEASE 20161123
+ENV ODOO_RELEASE latest
 RUN set -x; \
         apt-get install -y libsasl2-dev libldap2-dev libssl-dev gcc \
         && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}c.${ODOO_RELEASE}.tar.gz \
         && tar xzf odoo.tar.gz \
-        && cd odoo-${ODOO_VERSION}c-${ODOO_RELEASE} \
+        && cd odoo-${ODOO_VERSION}c-* \
         && pip install . \
         && cd .. && rm -rf ./odoo* \
         && pip install --upgrade \

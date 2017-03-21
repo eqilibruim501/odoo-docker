@@ -45,16 +45,12 @@ RUN set -x; \
         && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}c.${ODOO_RELEASE}.tar.gz \
         && tar xzf odoo.tar.gz \
         && cd odoo-${ODOO_VERSION}c-${ODOO_RELEASE} \
+        && pip install -r ./requirements.txt \
         && pip install . \
         && cd .. && rm -rf ./odoo* \
         && pip install --upgrade \
             cryptography \
-            inotify \
             watchdog \
-            psycogreen \
-            psycopg2 \
-            gevent \
-            pyinotify \
             newrelic \
             flanker \
         && apt-get purge -y \

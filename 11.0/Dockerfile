@@ -1,14 +1,22 @@
-FROM python:3.6.2
+FROM python:3.6.5
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
 # add user with the same user id as in core odoo package
 # unfortunately python comes with group 107 already defined so I used www-data as group
 RUN useradd -m -d /var/lib/odoo -s /bin/false -u 104 -g 33 odoo
 
+# Generate locale C.UTF-8 for postgres and general locale data - Debian Jessie
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt-get update -qq && apt-get install -y locales -qq \
+    && echo 'C.UTF-8 UTF-8' >> /etc/locale.gen && locale-gen \
+    && dpkg-reconfigure locales && /usr/sbin/update-locale LANG=C.UTF-8
+ENV LANG C.UTF-8
+ENV LANGUAGE C.UTF-8
+ENV LC_ALL C.UTF-8
+
 # Install some deps, lessc and less-plugin-clean-css, and wkhtmltopdf
 RUN set -x; \
-        apt-get update \
-        && apt-get install -y --no-install-recommends \
+        apt-get install -y --no-install-recommends \
             ca-certificates \
             curl \
         && curl -o wkhtmltox.deb -SL http://nightly.odoo.com/extra/wkhtmltox-0.12.1.2_linux-jessie-amd64.deb \
@@ -39,7 +47,7 @@ RUN apt-get purge -y python.*
 
 # Install Odoo
 ENV ODOO_VERSION 11.0
-ENV ODOO_RELEASE 20171003
+ENV ODOO_RELEASE 20180122
 RUN set -x; \
         apt-get install -y libsasl2-dev libldap2-dev libssl-dev gcc \
         && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}.${ODOO_RELEASE}.tar.gz \
@@ -53,6 +61,9 @@ RUN set -x; \
             watchdog \
             newrelic \
             xlwt \
+            num2words \
+            phonenumbers \
+            pyOpenSSL \
         && apt-get purge -y \
             gcc \
             libsasl2-dev \

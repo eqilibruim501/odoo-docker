@@ -38,12 +38,11 @@ RUN npm install -g less \
 RUN apt-get purge -y python.*
 
 # Install Odoo
-ENV ODOO_VERSION 11.0alpha2
-ENV ODOO_RELEASE 20170930
+ENV ODOO_VERSION 11.0
+ENV ODOO_RELEASE 20171003
 RUN set -x; \
         apt-get install -y libsasl2-dev libldap2-dev libssl-dev gcc \
-#        && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}.${ODOO_RELEASE}.tar.gz \
-        && curl -o odoo.tar.gz -SL https://nightly.odoo.com/master/nightly/src/odoo_${ODOO_VERSION}.${ODOO_RELEASE}.tar.gz \
+        && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}.${ODOO_RELEASE}.tar.gz \
         && tar xzf odoo.tar.gz \
         && cd odoo-* \
         && pip install -r ./requirements.txt \

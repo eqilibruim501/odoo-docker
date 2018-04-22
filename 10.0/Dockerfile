@@ -1,4 +1,4 @@
-FROM python:2.7.13
+FROM python:2.7.14
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
 # add user with the same user id as in core odoo package

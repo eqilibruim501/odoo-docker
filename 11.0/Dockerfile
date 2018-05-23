@@ -64,6 +64,7 @@ RUN set -x; \
             num2words \
             phonenumbers \
             pyOpenSSL \
+            markdown \
         && apt-get purge -y \
             gcc \
             libsasl2-dev \

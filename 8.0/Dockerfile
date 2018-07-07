@@ -1,4 +1,4 @@
-FROM python:2.7.14
+FROM python:2.7.15-jessie
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
 # add user with the same user id as in core odoo package
@@ -44,7 +44,7 @@ RUN set -x; \
         apt-get install -y libsasl2-dev libldap2-dev libssl-dev gcc \
         && curl -o odoo.tar.gz -SL https://nightly.odoo.com/${ODOO_VERSION}/nightly/src/odoo_${ODOO_VERSION}.${ODOO_RELEASE}.tar.gz \
         && tar xzf odoo.tar.gz \
-        && cd odoo-${ODOO_VERSION}-${ODOO_RELEASE} \
+        && cd odoo-${ODOO_VERSION}* \
         && pip install -r ./requirements.txt \
         && pip install . \
         && cd .. && rm -rf ./odoo* \

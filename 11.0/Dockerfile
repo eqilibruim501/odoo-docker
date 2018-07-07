@@ -1,4 +1,4 @@
-FROM python:3.6.5
+FROM python:3.6.6-jessie
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
 # add user with the same user id as in core odoo package
@@ -65,6 +65,12 @@ RUN set -x; \
             phonenumbers \
             pyOpenSSL \
             markdown \
+            # Additional for Order Planner/geolocalization \
+            uszipcode \
+            # Additional for Connectors (e.g. Walmart and Magento) \
+            cachetools \
+            magento \
+            pycryptodome \
         && apt-get purge -y \
             gcc \
             libsasl2-dev \

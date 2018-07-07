@@ -1,4 +1,4 @@
-FROM python:3.6.5
+FROM python:3.6.6-jessie
 MAINTAINER Hibou Corp. <hello@hibou.io>
 
 # add user with the same user id as in core odoo package
@@ -26,8 +26,8 @@ RUN set -x; \
         && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false -o APT::AutoRemove::SuggestsImportant=false npm \
         && rm -rf /var/lib/apt/lists/* wkhtmltox.deb
 
-# support for Postgresql9.6
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main 9.6" > /etc/apt/sources.list.d/postgresql.list \
+# support for Postgresql10
+RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main 10" > /etc/apt/sources.list.d/postgresql.list \
         && wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
         && apt-get update \
         && apt-get upgrade -y postgresql-common \
@@ -65,6 +65,12 @@ RUN set -x; \
             phonenumbers \
             pyOpenSSL \
             markdown \
+            # Additional for Order Planner/geolocalization \
+            uszipcode \
+            # Additional for Connectors (e.g. Walmart and Magento) \
+            cachetools \
+            magento \
+            pycryptodome \
         && apt-get purge -y \
             gcc \
             libsasl2-dev \

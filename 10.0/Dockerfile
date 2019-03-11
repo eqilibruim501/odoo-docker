@@ -25,14 +25,6 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main 10" > /e
         && apt-get upgrade -y postgresql-common \
         && apt-get upgrade -y postgresql-client
 
-# install newer node and lessc (mostly for less compatibility)
-RUN set -x; \
-        apt-get install -y nodejs npm
-
-RUN npm install -g less \
-    && npm install -g less-plugin-clean-css \
-    && ln -s `which nodejs` /bin/node \
-    && ln -s `which lessc` /bin/lessc
 
 # python python-minimal python2.7 python2.7-minimal
 RUN apt-get purge -y python.*
@@ -65,6 +57,12 @@ RUN set -x; \
             libldap2-dev \
             libssl-dev
 
+# install newer node and lessc (mostly for less compatibility)
+RUN set -x; \
+        curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+        && apt-get install -y nodejs \
+        && npm install -g less \
+        ;
 
 # Copy entrypoint script and Odoo configuration file
 COPY ./entrypoint.sh /

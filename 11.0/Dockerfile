@@ -35,16 +35,11 @@ RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ jessie-pgdg main 9.6" > /
 
 # install newer node and lessc (mostly for less compatibility)
 RUN set -x; \
-        apt-get install -y nodejs npm
-
-# Fix "Object doesn't have 'assign'" error
-RUN npm install -g npm@4.3.0 \
-    && ln -s `which nodejs` /bin/node
-
-RUN npm install -g n \
-    && n latest \
-    && npm install -g less less-plugin-clean-css
-
+        curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+        && apt-get install -y nodejs \
+        && npm install -g less \
+        ;
+ 
 # python python-minimal python2.7 python2.7-minimal
 RUN apt-get purge -y python.*
 
